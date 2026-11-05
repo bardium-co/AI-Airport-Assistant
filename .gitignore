@@ -12,3 +12,4 @@ data/
 *.key
 tls.pass
 .app-secret
+dist/

@@ -15,6 +15,7 @@
     "ai-setup": "node --disable-warning=ExperimentalWarning server/ai-setup.js",
     "start:airport": "node --disable-warning=ExperimentalWarning server/index.js --lan",
     "lite": "node --disable-warning=ExperimentalWarning server/lite/dev.js",
+    "build:netlify": "node tools/build-netlify-zip.mjs",
     "make-cert": "powershell -NoProfile -ExecutionPolicy Bypass -File tools/make-cert.ps1"
   },
   "license": "UNLICENSED",
@@ -24,5 +25,8 @@
   },
   "overrides": {
     "simple-git": "4.0.2"
+  },
+  "devDependencies": {
+    "esbuild": "^0.24.2"
   }
 }

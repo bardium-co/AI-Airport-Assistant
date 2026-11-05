@@ -9,9 +9,13 @@ lounge-eligibility cases, and the built-in AI model (there is no server to run i
 app's own rules, which is what you asked for.
 
 ## Deploy (about 10 minutes)
-1. Make a free account at https://netlify.com (sign in with GitHub).
-2. **Add new site → Import an existing project → GitHub →** pick `AI-Airport-Assistant` (private repos work once
-   you allow it). Netlify reads `netlify.toml`, so leave every build setting as it is → **Deploy**.
+1. Make a free account at https://netlify.com.
+2. Upload the site — pick ONE way:
+   * **A. Zip upload (no GitHub needed).** Run `npm run build:netlify` (or use the ready-made `dist/netlify-upload.zip`).
+     In Netlify: **Add new site → Deploy manually** → drag the zip in. Everything is pre-built inside it.
+     To update later: build a new zip and use **Deploys → drag the new zip** onto the page.
+   * **B. From GitHub (updates itself).** **Add new site → Import an existing project → GitHub →** pick
+     `AI-Airport-Assistant`. Netlify reads `netlify.toml`, so leave every build setting as it is → **Deploy**.
 3. **Site configuration → Environment variables → Add a variable**, then **Deploys → Trigger deploy** so they take effect:
 
 | Variable | Required | Value |
@@ -52,4 +56,5 @@ Keys and passwords live only in Netlify's settings — never in the code or in t
 |---|---|
 | Staff sign-in says accounts are not set up | `STAFF_ACCOUNTS` missing or passwords shorter than 8 characters — fix it, then trigger a deploy. |
 | API calls fail with `No such built-in module: node:sqlite` | Add the variable `AWS_LAMBDA_JS_RUNTIME` = `nodejs22.x` and redeploy (needs Node 22.13 or newer). |
+| The site opens but chat/messages show errors after a zip upload | The zip deploy did not pick up the function. Use way B (GitHub) instead. |
 | Languages other than English show English words | The `public/lang` files were not packaged: check **Deploys → Functions** shows `api`, and that `netlify.toml` is at the repo root. |

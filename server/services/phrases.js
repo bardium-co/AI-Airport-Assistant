@@ -563,9 +563,11 @@ export const LANG_PACKS = loadPacks();
 
 function loadPacks() {
   let files = [], dir = PACK_DIR;
+  const embedded = globalThis.__AA_PACKS__; // set by the pre-built serverless bundle (tools/build-netlify-zip.mjs)
   for (const d of PACK_DIRS) { try { files = fs.readdirSync(d).filter(f => f.endsWith('.json')); dir = d; if (files.length) break; } catch { /* try the next place */ } }
   const packs = [];
-  for (const f of files) {
+  for (const p of embedded ?? []) packs.push(p);
+  for (const f of embedded ? [] : files) {
     try { packs.push(JSON.parse(fs.readFileSync(new URL(f, dir), 'utf8'))); } catch (e) { console.error(`[lang] could not load ${f}: ${e.message}`); }
   }
   const full = packs.filter(p => !p.base).sort((a, b) => a.name.localeCompare(b.name));

@@ -11,12 +11,6 @@
   # The language packs are read from disk by the server code.
   included_files = ["public/lang/**"]
 
-# Single-page app: any non-file, non-API path opens the app.
-[[redirects]]
-  from = "/*"
-  to = "/index.html"
-  status = 200
-
 [[headers]]
   for = "/*"
   [headers.values]
