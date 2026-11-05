@@ -159,6 +159,8 @@ Everything is labelled *approximate*. Replace it with authorised indoor-map data
 * Passengers are anonymous. Analytics store only daily counts of topic + language + mode; counts below 5 are suppressed. Interpreter transcripts are **off by default**, require passenger consent, auto-delete, and every view is audited.
 
 ## Running it at the airport (tablets, kiosks, passenger phones)
+**No server budget? See [SETUP-FOR-STAFF.md](SETUP-FOR-STAFF.md)** — double-click `Start-Airport-Assistant.bat` on one staff PC; no AI model needed.
+
 One computer runs the app: the "server", for example a staff laptop, or better an always-on PC. Every tablet, kiosk and phone simply opens its address over the airport network. If that computer is off, the devices cannot work, so keep it on and plugged in.
 
 1. **On the server computer:** `npm install`, `npm run ai-setup`, then `npm run make-cert` (HTTPS is required for the microphone on tablets and phones).
