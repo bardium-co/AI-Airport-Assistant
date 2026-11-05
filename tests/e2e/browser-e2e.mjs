@@ -5,6 +5,7 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 
+const LITE = process.env.LITE_LOGIN; // e.g. staff:Staff-Pass-2026 → test the Netlify (Lite) edition
 const BASE = process.argv[2] ?? 'http://127.0.0.1:3000';
 const OUT = process.argv[3] ?? path.join(os.tmpdir(), 'airport-assistant-e2e');
 fs.mkdirSync(OUT, { recursive: true });
@@ -198,7 +199,10 @@ await step('staff login with demo account → interpreter', async () => {
   await go('#/staff');
   await waitFor(`document.querySelector('#lg')`);
   await shot('11-staff-login');
-  await click('.demo-accounts [data-u="staff"]');
+  if (LITE) { // serverless edition: no demo-account buttons; staff accounts come from STAFF_ACCOUNTS
+    const [u, p] = LITE.split(':');
+    await evaluate(`(() => { const f = document.querySelector('#lg'); f.username.value = ${JSON.stringify(u)}; f.password.value = ${JSON.stringify(p)}; f.requestSubmit(); })()`);
+  } else await click('.demo-accounts [data-u="staff"]');
   await waitFor(`location.hash.startsWith('#/staff') && document.querySelector('#rqlist')`);
 });
 await step('staff see the passenger request live and reply with a translated quick reply', async () => {
@@ -233,7 +237,7 @@ await step('guidance library', async () => {
   await waitFor(`document.querySelectorAll('.guide').length >= 4`);
   await shot('13-guidance');
 });
-await step('eligibility case: create, verify, approve, code', async () => {
+if (!LITE) await step('eligibility case: create, verify, approve, code', async () => {
   await go('#/staff/cases');
   await waitFor(`document.querySelector('#newc')`);
   await click('#newc');
@@ -253,14 +257,14 @@ await step('eligibility case: create, verify, approve, code', async () => {
   await shot('15-case-approved');
   globalThis.__code = code;
 });
-await step('passenger verifies the staff code', async () => {
+if (!LITE) await step('passenger verifies the staff code', async () => {
   await viewport(390, 844, true);
   await go('#/lounges');
   await evaluate(`(() => { document.querySelector('#code').value = ${JSON.stringify(globalThis.__code ?? '')}; document.querySelector('#codef').requestSubmit(); })()`);
   await waitFor(`document.querySelector('.verified')`);
   await shot('16-passenger-verified');
 });
-await step('admin console tabs render', async () => {
+if (!LITE) await step('admin console tabs render', async () => {
   await viewport(1280, 860, false);
   await go('#/staff');
   await waitFor(`document.querySelector('#logout')`);

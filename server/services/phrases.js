@@ -1,3 +1,5 @@
+import path from 'node:path';
+import { pathToFileURL } from 'node:url';
 import fs from 'node:fs';
 
 // Built-in multilingual phrase bank. These are hand-written, reviewed templates used for
@@ -555,14 +557,16 @@ const SINGULAR = {
 // passenger interface ("ui"), the answer templates ("t"), place/intent keywords and the staff phrasebook.
 // A pack with "base" (e.g. es-MX → es) is a regional variant that reuses its base language with its own voice.
 export const PACK_DIR = new URL('../../public/lang/', import.meta.url);
+// When bundled for serverless hosting the files are copied next to the bundle instead (netlify.toml: included_files).
+const PACK_DIRS = [PACK_DIR, ...[process.env.LAMBDA_TASK_ROOT, process.cwd()].filter(Boolean).map(d => pathToFileURL(path.join(d, 'public', 'lang') + path.sep))];
 export const LANG_PACKS = loadPacks();
 
 function loadPacks() {
-  let files = [];
-  try { files = fs.readdirSync(PACK_DIR).filter(f => f.endsWith('.json')); } catch { return []; }
+  let files = [], dir = PACK_DIR;
+  for (const d of PACK_DIRS) { try { files = fs.readdirSync(d).filter(f => f.endsWith('.json')); dir = d; if (files.length) break; } catch { /* try the next place */ } }
   const packs = [];
   for (const f of files) {
-    try { packs.push(JSON.parse(fs.readFileSync(new URL(f, PACK_DIR), 'utf8'))); } catch (e) { console.error(`[lang] could not load ${f}: ${e.message}`); }
+    try { packs.push(JSON.parse(fs.readFileSync(new URL(f, dir), 'utf8'))); } catch (e) { console.error(`[lang] could not load ${f}: ${e.message}`); }
   }
   const full = packs.filter(p => !p.base).sort((a, b) => a.name.localeCompare(b.name));
   const variants = packs.filter(p => p.base);

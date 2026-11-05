@@ -27,7 +27,7 @@ export async function route(v, parts, query) {
   const counts = await api('/api/staff/support?status=active').then(r => r.counts).catch(() => null);
   mount(v, html`<nav class="subnav" aria-label="Staff">
       <a href="#/staff/requests" class="${tab === 'requests' ? 'active' : ''}">${icon('chat')}<span>Requests</span>${counts?.open ? html`<em class="badge">${counts.open}</em>` : ''}</a>
-      ${[['translate', 'swap', 'Interpreter'], ['guidance', 'book', 'Guidance'], ['cases', 'clipboard', 'Eligibility cases'], ['tools', 'plane', 'Flights & map']].map(([k, ic, label]) =>
+      ${[['translate', 'swap', 'Interpreter'], ['guidance', 'book', 'Guidance'], ['cases', 'clipboard', 'Eligibility cases'], ['tools', 'plane', 'Flights & map']].filter(([k]) => !(staffCfg?.lite && k === 'cases')).map(([k, ic, label]) =>
         html`<a href="#/staff/${k}" class="${tab === k ? 'active' : ''}">${icon(ic)}<span>${label}</span></a>`)}
       ${state.user.role === 'admin' ? html`<a href="#/admin">${icon('settings')}<span>Admin</span></a>` : ''}
     </nav><div id="sv" class="staff-body"></div>`);
@@ -36,7 +36,7 @@ export async function route(v, parts, query) {
   if (tab === 'requests') return parts[1] ? requestDetail(sv, Number(parts[1])) : requests(sv, query);
   if (tab === 'translate') return translator(sv);
   if (tab === 'guidance') return guidance(sv);
-  if (tab === 'cases') return parts[1] ? caseDetail(sv, Number(parts[1])) : cases(sv);
+  if (tab === 'cases' && !staffCfg?.lite) return parts[1] ? caseDetail(sv, Number(parts[1])) : cases(sv);
   if (tab === 'tools') return tools(sv);
   return requests(sv, query);
 }
@@ -83,7 +83,7 @@ async function requests(sv, query) {
   const load = async () => { try { return draw(await api(`/api/staff/support?status=${view}`)); } catch { return true; } };
   await load();
   // Stop as soon as the list is no longer on screen (navigated away or signed out) — before fetching again.
-  const timer = setInterval(async () => { if (!$('#rqlist', sv)?.isConnected || !(await load())) clearInterval(timer); }, 5000);
+  const timer = setInterval(async () => { if (!$('#rqlist', sv)?.isConnected) return clearInterval(timer); if (document.hidden) return; if (!(await load())) clearInterval(timer); }, staffCfg?.lite ? 15000 : 5000);
 }
 
 async function requestDetail(sv, id) {
@@ -141,7 +141,7 @@ async function requestDetail(sv, id) {
     return draw();
   };
   await load();
-  const timer = setInterval(async () => { if (!box() || !(await load())) clearInterval(timer); }, 5000);
+  const timer = setInterval(async () => { if (!box()) return clearInterval(timer); if (document.hidden) return; if (!(await load())) clearInterval(timer); }, staffCfg?.lite ? 8000 : 5000);
 }
 
 

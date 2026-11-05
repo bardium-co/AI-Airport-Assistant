@@ -14,10 +14,12 @@
     "reset-db": "node --disable-warning=ExperimentalWarning server/reset-db.js",
     "ai-setup": "node --disable-warning=ExperimentalWarning server/ai-setup.js",
     "start:airport": "node --disable-warning=ExperimentalWarning server/index.js --lan",
+    "lite": "node --disable-warning=ExperimentalWarning server/lite/dev.js",
     "make-cert": "powershell -NoProfile -ExecutionPolicy Bypass -File tools/make-cert.ps1"
   },
   "license": "UNLICENSED",
   "dependencies": {
+    "@netlify/blobs": "^11.1.7",
     "node-llama-cpp": "3.22.2"
   },
   "overrides": {

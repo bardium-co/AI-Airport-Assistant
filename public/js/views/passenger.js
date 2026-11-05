@@ -451,7 +451,7 @@ async function supportThread(v, id) {
   const timer = setInterval(() => {
     if (!document.body.contains($('#stlog', v) ?? document.createElement('i'))) { clearInterval(timer); return; }
     if (!document.hidden && data?.status !== 'closed') load();
-  }, 4000);
+  }, state.meta.lite ? 6000 : 4000); // slower on the free serverless host, which meters every request
   $('#streply', v).addEventListener('submit', async e => {
     e.preventDefault();
     const q = $('#stq', v);
