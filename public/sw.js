@@ -1,5 +1,5 @@
 // Offline shell cache. API responses are never cached (flight/eligibility data must always be fresh).
-const CACHE = 'airport-assistant-shell-v3';
+const CACHE = 'airport-assistant-shell-v4';
 const SHELL = ['/', '/index.html', '/css/app.css', '/js/app.js', '/js/lib.js', '/js/i18n.js', '/js/speech.js', '/js/map.js',
   '/js/views/passenger.js', '/js/views/staff.js', '/js/views/admin.js', '/icons/icon.svg', '/manifest.webmanifest'];
 

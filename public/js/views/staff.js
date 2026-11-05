@@ -82,13 +82,14 @@ async function requests(sv, query) {
   };
   const load = async () => { try { return draw(await api(`/api/staff/support?status=${view}`)); } catch { return true; } };
   await load();
-  const timer = setInterval(async () => { if (!(await load())) clearInterval(timer); }, 5000);
+  // Stop as soon as the list is no longer on screen (navigated away or signed out) — before fetching again.
+  const timer = setInterval(async () => { if (!$('#rqlist', sv)?.isConnected || !(await load())) clearInterval(timer); }, 5000);
 }
 
 async function requestDetail(sv, id) {
   mount(sv, html`<a href="#/staff/requests" class="back">← All requests</a><div id="rqd"><div class="skeleton"></div></div>`);
   let data = null, lastMsg = 0;
-  const box = () => $('#rqd', sv);
+  const box = () => { const b = $('#rqd', sv); return b?.isConnected ? b : null; };
   const draw = () => {
     if (!box()) return false;
     const r = data;
@@ -109,7 +110,7 @@ async function requestDetail(sv, id) {
             <small class="who">${m.sender === 'passenger' ? `Passenger (${r.langName})` : (m.by ?? 'Staff')} · ${fmtDateTime(m.at)}</small>
             ${m.sender === 'passenger'
               ? html`<p dir="auto" lang="${m.lang}">${m.text}</p>${m.translated ? html`<p class="rq-trans">${icon('swap')} ${m.translated} <small class="muted">(${m.engine === 'phrasebook' ? 'reviewed' : 'machine'} translation)</small></p>` : (m.lang !== 'en' ? html`<p class="rq-trans muted small">${r.translation !== 'phrasebook' && Date.now() - m.at < 120000 ? 'Translating…' : 'No translation available — use the Interpreter tab or the quick replies below.'}</p>` : '')}`
-              : html`<p>${m.text}</p>${m.translated ? html`<p class="rq-trans" dir="auto">${icon('swap')} ${m.translated} <small class="muted">(${m.engine === 'phrasebook' ? 'reviewed phrase' : 'machine translation'})</small></p>` : (r.lang !== 'en' ? html`<p class="rq-trans muted small">Sent in English (no translation for this text).</p>` : '')}`}
+              : html`<p>${m.text}</p>${m.translated ? html`<p class="rq-trans" dir="auto">${icon('swap')} ${m.translated} <small class="muted">(${m.engine === 'phrasebook' ? 'reviewed phrase' : 'machine translation'})</small></p>` : (m.engine === 'pending' ? html`<p class="rq-trans muted small">Translating for the passenger… they will see it in ${r.langName} shortly.</p>` : r.lang !== 'en' ? html`<p class="rq-trans muted small">Sent in English (no translation for this text).</p>` : '')}`}
           </div>`))}</div>
       ${r.status !== 'closed' ? html`<div class="card">
         <h2>Reply</h2>

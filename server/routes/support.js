@@ -2,7 +2,7 @@ import crypto from 'node:crypto';
 import { HttpError } from '../http.js';
 import { str, oneOf } from '../validate.js';
 import { normalizeFlightNo } from '../services/flights.js';
-import { PHRASEBOOK, langName } from '../services/translate.js';
+import { PHRASEBOOK, langName, phrasebookLookup } from '../services/translate.js';
 
 // Passenger → staff help requests ("message airport staff").
 // Passengers stay anonymous: a request is reachable only with the random token returned when it is created
@@ -58,7 +58,8 @@ export function registerSupport(router, d) {
 
   const passengerView = r => ({
     id: r.id, code: r.code, status: r.status, lang: r.lang, createdAt: r.created_at, updatedAt: r.updated_at,
-    messages: messages(r.id).map(m => {
+    // A staff reply still being translated is held back (up to 90 s) so the passenger sees it in their own language.
+    messages: messages(r.id).filter(m => !(m.engine === 'pending' && Date.now() - m.created_at < 90e3)).map(m => {
       if (m.sender === 'passenger') return { id: m.id, sender: 'passenger', text: m.text, at: m.created_at };
       if (m.sender === 'system') return { id: m.id, sender: 'system', event: m.text, at: m.created_at };
       // Staff message: reviewed phrase or machine translation in the passenger's language when available.
@@ -160,14 +161,24 @@ export function registerSupport(router, d) {
       if (r.lang !== 'en' && row[r.lang]) { translated = row[r.lang]; tlang = r.lang; engine = 'phrasebook'; }
     } else {
       text = str(body.message, 'message', { required: true, max: MAX_TEXT });
+      // Reviewed phrasebook match → instant; otherwise translate in the background (the built-in model may take
+      // several seconds on a laptop) so staff are never kept waiting.
       if (r.lang !== 'en') {
-        const t = await translator.translate(text, 'en', r.lang);
-        if (t.text) { translated = t.text; tlang = r.lang; engine = t.engine; }
+        const pb = phrasebookLookup(text, 'en', r.lang);
+        if (pb) { translated = pb.text; tlang = r.lang; engine = 'phrasebook'; }
+        else if (translator.status() !== 'phrasebook') engine = 'pending';
       }
     }
     const now = Date.now();
-    db.run(`INSERT INTO support_messages(request_id,sender,user_id,text,lang,translated_text,translated_lang,engine,created_at) VALUES(?,?,?,?,?,?,?,?,?)`,
-      r.id, 'staff', user.id, text, 'en', translated, tlang, engine, now);
+    const msgId = db.run(`INSERT INTO support_messages(request_id,sender,user_id,text,lang,translated_text,translated_lang,engine,created_at) VALUES(?,?,?,?,?,?,?,?,?)`,
+      r.id, 'staff', user.id, text, 'en', translated, tlang, engine, now).lastInsertRowid;
+    if (engine === 'pending') {
+      const job = translator.translate(text, 'en', r.lang)
+        .then(t => db.run('UPDATE support_messages SET translated_text = ?, translated_lang = ?, engine = ? WHERE id = ?', t.text ?? null, t.text ? r.lang : null, t.text ? t.engine : null, msgId))
+        .catch(() => db.run('UPDATE support_messages SET engine = NULL WHERE id = ?', msgId))
+        .finally(() => pendingTranslations.delete(job));
+      pendingTranslations.add(job);
+    }
     // Replying claims an open request and clears the "waiting" timer.
     db.run(`UPDATE support_requests SET status=CASE WHEN status='open' THEN 'claimed' ELSE status END, claimed_by=COALESCE(claimed_by, ?), claimed_at=COALESCE(claimed_at, ?), updated_at=?, waiting_since=NULL WHERE id=?`, user.id, now, now, r.id);
     return { ok: true, localized: !!translated };

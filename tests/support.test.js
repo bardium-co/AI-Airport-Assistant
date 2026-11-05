@@ -113,8 +113,13 @@ test('with a translation service connected, messages are translated both ways', 
     for (let i = 0; i < 40; i++) { d = (await s.get(`/api/staff/support/${r.id}`)).json; if (d.messages[0].translated) break; await new Promise(res => setTimeout(res, 50)); } // translated in the background
     assert.equal(d.messages[0].translated, '[en] أين حقيبتي؟', 'staff read the passenger in English');
     await s.post(`/api/staff/support/${r.id}/messages`, { message: 'Belt 7' });
-    const v = (await A.req('GET', `/api/support/${r.id}`, undefined, { headers: { 'X-Support-Token': r.token } })).json;
-    const m = v.messages.find(x => x.sender === 'staff');
+    let m;
+    for (let i = 0; i < 40; i++) { // translated in the background; the passenger never sees an English flash
+      const v = (await A.req('GET', `/api/support/${r.id}`, undefined, { headers: { 'X-Support-Token': r.token } })).json;
+      m = v.messages.find(x => x.sender === 'staff');
+      if (m) break;
+      await new Promise(res => setTimeout(res, 50));
+    }
     assert.equal(m.text, '[ar] Belt 7', 'passenger reads staff in Arabic');
     assert.equal(m.machine, true);
   } finally { await A.close(); await lt.close(); }
