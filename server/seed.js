@@ -470,7 +470,7 @@ export async function seed(db, cfg, log = console.log) {
 
   if (!hasUsers) {
     if (cfg.demoMode) {
-      const demo = [['staff', 'Demo Staff (Information Desk)', 'staff', 'Staff#2026demo'], ['supervisor', 'Demo Supervisor', 'supervisor', 'Super#2026demo'], ['admin', 'Demo Administrator', 'admin', 'Admin#2026demo']];
+      const demo = [['staff', 'Staff (Information Desk)', 'staff', 'Staff#2026demo'], ['supervisor', 'Supervisor', 'supervisor', 'Super#2026demo'], ['admin', 'Administrator', 'admin', 'Admin#2026demo']];
       for (const [u, n, r, p] of demo) db.run('INSERT INTO users(username,display_name,password_hash,role,is_demo,created_at) VALUES(?,?,?,?,1,?)', u, n, await hashPassword(p), r, now);
       log('[seed] Demo accounts created (DEMO MODE): staff / supervisor / admin — see README.');
     } else {

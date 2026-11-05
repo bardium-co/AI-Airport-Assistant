@@ -666,7 +666,7 @@ function settings(v) {
       <h2>Privacy</h2>
       <p>This assistant does not ask for your name, passport or booking reference. Questions are answered and then discarded; only anonymous daily counts (topic and language) are kept to improve the service. Voice input uses your device's speech service.</p>
       <h2>About the data</h2>
-      <p>Items marked <span class="pill pill-sim">${tr('simulated')}</span> are demonstration data. ${state.meta.flightSource === 'live' ? 'Flight information comes from the authorised airport feed.' : 'No live flight feed is connected, so flight details shown are simulated or unavailable.'} Lounge eligibility is a guide only — entry is always verified by staff.</p>
+      <p>Items marked <span class="pill pill-sim">${tr('simulated')}</span> are simulated. ${state.meta.flightSource === 'live' ? 'Flight information comes from the authorised airport feed.' : 'No live flight feed is connected, so flight details shown are simulated or unavailable.'} Lounge eligibility is a guide only — entry is always verified by staff.</p>
       <p class="muted">${tr('disclaimer')}</p>
     </div>
     <a class="card staff-card" href="#/staff">${icon('shield')}<div><b>${tr('staff_login')}</b></div>${icon('chevron', 'flip-rtl')}</a>

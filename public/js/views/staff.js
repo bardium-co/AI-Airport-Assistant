@@ -32,7 +32,7 @@ export async function route(v, parts, query) {
       ${state.user.role === 'admin' ? html`<a href="#/admin">${icon('settings')}<span>Admin</span></a>` : ''}
     </nav><div id="sv" class="staff-body"></div>`);
   const sv = $('#sv', v);
-  if (state.user.isDemo) sv.insertAdjacentHTML('beforebegin', String(html`<p class="banner banner-warn">${icon('alert')} Demo account — for evaluation only. Change the password or create real accounts in Admin → Users.</p>`));
+  if (state.user.isDemo) sv.insertAdjacentHTML('beforebegin', String(html`<p class="banner banner-warn">${icon('alert')} Built-in test account. Change the password or create real accounts in Admin → Users.</p>`));
   if (tab === 'requests') return parts[1] ? requestDetail(sv, Number(parts[1])) : requests(sv, query);
   if (tab === 'translate') return translator(sv);
   if (tab === 'guidance') return guidance(sv);
@@ -159,7 +159,7 @@ function login(v) {
         <p class="error" id="lerr" role="alert" hidden></p>
         <button class="btn btn-primary btn-block btn-lg">Sign in</button>
       </form>
-      ${demo.length ? html`<div class="demo-accounts"><p><b>Demo accounts</b> (demo mode only)</p>${demo.map(d => html`<button class="chip" data-u="${d.username}" data-p="${d.password}">${icon('user')} ${d.username} <em>${d.role}</em></button>`)}</div>` : ''}
+      ${demo.length ? html`<div class="demo-accounts"><p><b>Quick sign-in</b> (test mode only)</p>${demo.map(d => html`<button class="chip" data-u="${d.username}" data-p="${d.password}">${icon('user')} ${d.username} <em>${d.role}</em></button>`)}</div>` : ''}
       <a class="btn btn-ghost btn-block" href="#/">← Passenger assistant</a>
     </div>
   </section>`);
@@ -503,7 +503,7 @@ async function caseDetail(sv, id) {
 function tools(sv) {
   mount(sv, html`<section class="page-wide">
     <h1>${icon('plane')} Flights & map</h1>
-    <p class="muted">Use the passenger tools for flight lookup, gate navigation and lounge suggestions. ${state.meta.flightSource === 'live' ? 'Flight data: authorised live feed.' : html`<b>No authorised flight feed is connected</b> — flight results are simulated demo data or unavailable.`}</p>
+    <p class="muted">Use the passenger tools for flight lookup, gate navigation and lounge suggestions. ${state.meta.flightSource === 'live' ? 'Flight data: authorised live feed.' : html`<b>No authorised flight feed is connected</b> — flight results are simulated or unavailable.`}</p>
     <div class="tiles">
       <a class="tile tile-gate" href="#/flight">${icon('plane')}<b>Flight lookup</b></a>
       <a class="tile tile-map" href="#/map">${icon('map')}<b>Map & directions</b></a>

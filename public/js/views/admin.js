@@ -60,7 +60,7 @@ async function overview(ab) {
   const max = Math.max(1, ...a.daily.map(d => d.count ?? 0));
   const bars = list => html`<ul class="bars">${list.slice(0, 10).map(r => html`<li><span>${r.name}</span><i style="width:${r.suppressed ? 0 : Math.round((r.count / Math.max(1, list[0].count ?? 1)) * 100)}%"></i><b>${r.suppressed ? `<${a.minCount}` : r.count}</b></li>`)}</ul>`;
   mount(ab, html`<h1>Overview</h1>
-    ${state.meta.demoMode ? html`<p class="banner banner-warn">${icon('alert')} <span><b>Demo mode.</b> Simulated flights and demo accounts are enabled. Before go-live: set <code>NODE_ENV=production</code>, create real accounts, connect only authorised integrations and replace simulated map/lounge data.</span></p>` : ''}
+    ${state.meta.demoMode ? html`<p class="banner banner-warn">${icon('alert')} <span><b>Test mode.</b> Simulated flights and the built-in test accounts are enabled. Before go-live: set <code>NODE_ENV=production</code>, create real accounts, connect only authorised integrations and replace simulated map/lounge data.</span></p>` : ''}
     <div class="stat-row">
       <div class="stat"><small>Questions (30 days)</small><b>${a.total ?? (a.totalSuppressed ? `<${a.minCount}` : 0)}</b></div>
       <div class="stat"><small>Gates</small><b>${gatesN}</b></div>
@@ -325,7 +325,7 @@ async function users(ab) {
   mount(ab, html`<div class="row-between"><h1>Users & roles</h1><button class="btn btn-primary" id="addU">${icon('plus')} Add user</button></div>
     <p class="muted"><b>staff</b>: interpreter, guidance, lounge/membership cases · <b>supervisor</b>: + approve upgrades and guidance · <b>admin</b>: + full configuration. Passwords need 12+ characters with upper/lower case and a number. Accounts lock for 15 minutes after 5 failed sign-ins.</p>
     <div class="table-wrap"><table class="tbl"><thead><tr><th>Username</th><th>Name</th><th>Role</th><th>Status</th><th>Last sign-in</th><th></th></tr></thead>
-    <tbody>${items.map(u => html`<tr><td>${u.username} ${u.isDemo ? html`<span class="pill pill-warn">demo</span>` : ''}</td><td>${u.displayName}</td><td>${u.role}</td><td>${u.active ? (u.locked ? 'locked' : 'active') : 'disabled'}</td><td class="small">${fmtDateTime(u.lastLoginAt)}</td>
+    <tbody>${items.map(u => html`<tr><td>${u.username} ${u.isDemo ? html`<span class="pill pill-warn">default password</span>` : ''}</td><td>${u.displayName}</td><td>${u.role}</td><td>${u.active ? (u.locked ? 'locked' : 'active') : 'disabled'}</td><td class="small">${fmtDateTime(u.lastLoginAt)}</td>
       <td><button class="icon-btn" data-edit="${u.id}" aria-label="Edit">${icon('edit')}</button></td></tr>`)}</tbody></table></div>`);
   const pw = html`${field('Password', html`<input name="password" type="password" autocomplete="new-password" minlength="12" required>`, '12+ characters, upper & lower case, a number')}`;
   $('#addU', ab).addEventListener('click', () => dialog('Add user', html`<div class="grid2">${field('Username', html`<input name="username" required pattern="[A-Za-z0-9._-]{3,40}">`)}${field('Display name', html`<input name="displayName" required>`)}</div>
@@ -442,7 +442,7 @@ function intCard(i) {
 async function flights(ab) {
   const [{ items }, settings] = await Promise.all([api('/api/admin/sim-flights'), api('/api/admin/settings')]);
   mount(ab, html`<div class="row-between"><h1>Simulated flights</h1><button class="btn btn-primary" id="addSF">${icon('plus')} Add simulated flight</button></div>
-    <p class="banner banner-warn">${icon('alert')} <span>These records are <b>demonstration data</b>, always labelled "Simulated" to passengers. Departure times are relative to the current time. When an authorised flight feed is connected, simulated data is never used.</span></p>
+    <p class="banner banner-warn">${icon('alert')} <span>These records are <b>simulated</b>, always labelled "Simulated" to passengers. Departure times are relative to the current time. When an authorised flight feed is connected, simulated data is never used.</span></p>
     <label class="switch switch-row"><span>Show simulated flights to passengers</span><input type="checkbox" id="demoF" ${settings.demo_flights ? raw('checked') : ''}><span class="switch-ui"></span></label>
     <div class="table-wrap"><table class="tbl"><thead><tr><th>Flight</th><th>Airline</th><th>Destination</th><th>Departs in</th><th>Gate</th><th>Status</th><th></th></tr></thead>
     <tbody>${items.map(fl => html`<tr><td><b>${fl.flight_no}</b></td><td>${fl.airline}</td><td>${fl.destination} (${fl.destination_code})</td><td>${fl.dep_offset_min} min</td><td>${fl.gate ?? '—'}</td><td>${fl.status}</td>
@@ -474,7 +474,7 @@ async function privacy(ab) {
       ${field('Delete transcripts after (days)', html`<input name="transcript_retention_days" type="number" min="1" max="90" value="${s.transcript_retention_days}">`)}
       <h2>Assistant & wayfinding</h2>
       ${chk('assistant_use_llm', 'Use the connected AI model for understanding and grounded answers (facts always come from approved data)', s.assistant_use_llm)}
-      ${chk('demo_flights', 'Show simulated demo flights (only when no live feed is connected)', s.demo_flights)}
+      ${chk('demo_flights', 'Show simulated flights (only when no live feed is connected)', s.demo_flights)}
       ${chk('map_is_simulated', 'Label the map as approximate (not authorised indoor-map data)', s.map_is_simulated)}
       <div class="grid3">${field('Walking speed (m/min)', html`<input name="walk_speed_m_per_min" type="number" min="30" max="120" value="${s.walk_speed_m_per_min}">`)}${field('Step-free speed (m/min)', html`<input name="step_free_speed_m_per_min" type="number" min="20" max="100" value="${s.step_free_speed_m_per_min}">`)}
         ${field('Default passenger location', html`<select name="default_location">${locs.filter(l => ['plaza', 'transfer'].includes(l.type)).map(l => opt(l.id, l.name, s.default_location))}</select>`)}</div>

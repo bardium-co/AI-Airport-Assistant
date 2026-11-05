@@ -266,7 +266,7 @@ export class Assistant {
     const lounges = this.db.all('SELECT name, status, notes FROM lounges');
     const facts = [
       'Airport: Hamad International Airport (DOH), Doha, Qatar. One terminal with concourses A, B, C, D and E.',
-      'Gate positions, facility positions, lounges and the map in this app are SIMULATED for demonstration.',
+      'Gate positions, facility positions, lounges and the map in this app are SIMULATED.',
       'Live flight data is ' + (this.flights.source() === 'live' ? 'available via the flight tool only.' : 'NOT connected; never state flight times or gates.'),
       ...faqs.map(f => `Q: ${f.q}\nA: ${f.a}`),
       'Lounges listed (simulated configuration): ' + lounges.map(l => `${l.name}${l.status === 'verify' ? ' (status must be verified)' : ''}`).join('; '),

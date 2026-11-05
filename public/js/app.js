@@ -69,7 +69,6 @@ function shell(kind, content) {
           <span class="brand-text"><b>Airport Assistant</b><small>Hamad International Airport · DOH</small></span>
         </a>
         <div class="topbar-actions">
-          ${state.meta.demoMode ? html`<span class="pill pill-demo" title="Demo build: simulated data is labelled">DEMO</span>` : ''}
           <a class="chip-btn" href="#/language" aria-label="${tr('language')}">${icon('globe')}<span>${l.native}</span></a>
           <a class="icon-btn" href="#/settings" aria-label="${tr('settings')}">${icon('settings')}</a>
         </div>
@@ -78,7 +77,6 @@ function shell(kind, content) {
         <a class="brand" href="${kind === 'admin' ? '#/admin' : '#/staff'}"><span class="brand-mark" aria-hidden="true">${icon('shield')}</span>
           <span class="brand-text"><b>${kind === 'admin' ? 'Admin console' : 'Staff console'}</b><small>Hamad International Airport · DOH</small></span></a>
         <div class="topbar-actions">
-          ${state.meta.demoMode ? html`<span class="pill pill-demo">DEMO</span>` : ''}
           ${state.user ? html`<span class="who">${icon('user')}<span>${state.user.displayName}</span><em>${state.user.role}</em></span>
           <button class="icon-btn" id="logout" aria-label="Sign out" title="Sign out">${icon('logout')}</button>` : ''}
         </div>
