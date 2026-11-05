@@ -41,7 +41,8 @@ export function registerLiteSupport(router, { store, maps, analytics, translator
     if (!token || a.length !== b.length || !crypto.timingSafeEqual(a, b)) throw new HttpError(404, 'Request not found');
     return r;
   };
-  const msgKey = (id, at) => `m/${id}/${String(at).padStart(13, '0')}-${crypto.randomBytes(3).toString('hex')}`;
+  let seq = 0; // keeps messages written in the same millisecond in the order they were written
+  const msgKey = (id, at) => `m/${id}/${String(at).padStart(13, '0')}-${String(seq++ % 1e6).padStart(6, '0')}-${crypto.randomBytes(2).toString('hex')}`;
   const addMsg = (id, m) => store.set(msgKey(id, m.at), m);
   const messages = async id => {
     const keys = await store.list(`m/${id}/`);
