@@ -1,0 +1,26 @@
+{
+  "name": "ai-airport-assistant",
+  "version": "1.0.0",
+  "description": "AI Airport Assistant for Hamad International Airport (DOH) — passenger, staff and administrator modes with multilingual voice assistance.",
+  "type": "module",
+  "private": true,
+  "engines": {
+    "node": ">=22.13.0"
+  },
+  "scripts": {
+    "start": "node --disable-warning=ExperimentalWarning server/index.js",
+    "dev": "node --disable-warning=ExperimentalWarning --watch server/index.js",
+    "test": "node --disable-warning=ExperimentalWarning --test --test-concurrency=1 \"tests/*.test.js\"",
+    "reset-db": "node --disable-warning=ExperimentalWarning server/reset-db.js",
+    "ai-setup": "node --disable-warning=ExperimentalWarning server/ai-setup.js",
+    "start:airport": "node --disable-warning=ExperimentalWarning server/index.js --lan",
+    "make-cert": "powershell -NoProfile -ExecutionPolicy Bypass -File tools/make-cert.ps1"
+  },
+  "license": "UNLICENSED",
+  "dependencies": {
+    "node-llama-cpp": "3.22.2"
+  },
+  "overrides": {
+    "simple-git": "4.0.2"
+  }
+}

@@ -1,0 +1,14 @@
+node_modules/
+data/
+*.db
+*.db-wal
+*.db-shm
+.env
+
+# AI models, certificates and keys never belong in the repository
+*.gguf
+*.pfx
+*.pem
+*.key
+tls.pass
+.app-secret
